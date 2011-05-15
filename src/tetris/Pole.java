@@ -80,7 +80,8 @@ public class Pole {
     private final int filine[][] = {{1}, {1}, {1}, {1}};
 
     private final int Width = 10;
-    private final int Height = 20;
+    private final int Height = 24;
+    private final int UpHeight = 4;
     private int stakan[][] = new int[Width][Height];
     private HashMap<Integer, FigureGen> figures;
 
@@ -92,6 +93,9 @@ public class Pole {
     private final int Current = 2;
 
     private int max_height;
+    private int stub;
+
+    private boolean game_stop = false;
 
     public Pole() {
         figures = new HashMap<Integer, FigureGen>();
@@ -103,6 +107,7 @@ public class Pole {
         figures.put(new Integer(5), new FigureGen(fif, 1, 1));
         figures.put(new Integer(6), new FigureGen(filine, 1, 0));
         genflag = true;
+        stub = 0;
         max_height = Height;
     }
 
@@ -127,8 +132,9 @@ public class Pole {
     private void reproect_current() {
         clean_current();
         for (int i = 0; i < cur.getW(); ++i) 
-            for (int j = 0; j < cur.getH(); ++j) 
-                stakan[cur.x + i][cur.y + j] = (cur.getF()[i][j] == 1) ? Current : Free;
+            for (int j = 0; j < cur.getH(); ++j)
+                if (cur.getF()[i][j] == 1)
+                    stakan[cur.x + i][cur.y + j] = Current;
     }
 
     private void upd_maxheight() {
@@ -187,7 +193,7 @@ public class Pole {
                             endofway = true;
 
                         if (endofway) {
-                            genflag = true;
+                            //genflag = true;
                             to_heap();
                             return true;
                         }
@@ -207,20 +213,29 @@ public class Pole {
     }
 
     public boolean step() {
+        if (game_stop) return true;
         // зачистка полных линий
         cleanup_lines();
 
         if (genflag) {
-            gen_couple();
-            genflag = false;
-            reproect_current();
+            if (stub == 0) {
+                gen_couple();
+                genflag = false;
+                reproect_current();
+            }
+            stub = 1;
         } else {
             // пришел ли конец текущей фигурке
-            if (current_endofway())
+            if (current_endofway()) {
+                genflag = true;
+                gen_couple();
+                genflag = false;
+                reproect_current();
                 return true; // да, пришел
-            else {
-                move_fig(); // если нет, то сдвинем ее на один шаг
+            } else {
+     //           move_fig(); // если нет, то сдвинем ее на один шаг
                 cur.y++;
+                reproect_current();
             }
         }
 
@@ -230,10 +245,40 @@ public class Pole {
     // пришел ли конец игре
     public boolean end_of_game() {
         upd_maxheight();
-        if (max_height <= 0)
+        if (max_height <= UpHeight) {
+            game_stop = true;
             return true;
-
+        }
         return false;
+    }
+
+    private int sign(int a) {
+        return a == 0 ? 0 : a / Math.abs(a);
+    }
+
+    private boolean can_move(int dx, int dy) {       
+        if (dx == 0) { // можно ли двигать по вертикали?
+            dy = sign(dy);
+            if (dy == -1)
+                return false;
+            if ((dy == 1) && !(cur.y + cur.getH() + 1 <= Height)) 
+                return false;
+        } else if (dy == 0) { // можно ли двигать по горизонтали?
+            dx = sign(dx);
+            if ((dx == 1) && !(cur.x + cur.getW() + 1 <= Width))
+                return false;
+            if ((dx == -1) && !(cur.x > 0))
+                return false;           
+        } else
+            return false;
+        
+        for (int i = ((dx == 1) || (dx == 0)) ? 0 : 1; i < Width - ((dx == -1) ? 1 : 0); ++i)
+                for (int j = 0; j < Height - 1; ++j)
+                    if (stakan[i][j] == Current)
+                        if (stakan[i + dx][j + dy] == Heap) 
+                            return false;
+
+        return true;
     }
 
     public static final int MoveRight = 0;
@@ -244,15 +289,15 @@ public class Pole {
     public static final int MoveCCW = 5;
 
     public void move(int movement) {
-        if (!genflag) {
+        if ((!genflag) && (!game_stop)) {
             switch (movement) {
-                case MoveRight: if (cur.x + cur.getW() + 1 <= Width)
+                case MoveRight: if (can_move(1, 0))
                                     cur.x++;
                                 break;
-                case MoveLeft: if (cur.x > 0)
+                case MoveLeft: if (can_move(-1, 0))
                                    cur.x--;
                                break;
-                case MoveDown: if (cur.y + cur.getH() + 1 <= Height)
+                case MoveDown: if (can_move(0, 1))
                                    cur.y++;
                                break;
                 case MoveThr:  while (!step()) {};
@@ -270,6 +315,7 @@ public class Pole {
 
     // получить стакан в виде массива
     public int[][] ret_stakan() {
+
         return stakan;
     }
 }

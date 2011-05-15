@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Main {
     static void print_stakan(int[][] stakan) {
-        for (int i = 0; i < stakan[0].length; ++i) {
+        for (int i = 4; i < stakan[0].length; ++i) {
             for (int j = 0; j < stakan.length; ++j)
                 System.out.print(stakan[j][i]);
 
@@ -25,7 +25,8 @@ public class Main {
             else
                 p.move(Pole.MoveRight);
             sw = !sw;*/
-            p.move(Pole.MoveDown);
+            p.move(Pole.MoveThr);
+            p.end_of_game();
             //p.move(Pole.MoveLeft);
             p.step();
             print_stakan(p.ret_stakan());            
