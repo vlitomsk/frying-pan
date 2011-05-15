@@ -26,13 +26,18 @@ class Figurek {
         return f[0].length;
     }   
 
-    public void rotate_cw(int count) {
+    public void rotate_cw(int count, int[][] stakan) {
+        if (x + getH() > stakan.length) {System.err.println("oilala");return;}
+        if (y + getW() > stakan[0].length) {return;}
         for (int fish = 0; fish < count; ++fish) {
             int[][] tmp = new int[f[0].length][f.length];
             for (int i = 0; i < tmp.length; i++) {
-                int x = tmp[i].length - 1;
+                int a = tmp[i].length - 1;
                 for (int j = 0; j < tmp[i].length; j++) {
-                    tmp[i][j] = f[x--][i];
+                    tmp[i][j] = f[a--][i];
+                    if (stakan[x + i][y + j] == Pole.Heap) {
+                        return;
+                    }
                 }
             }
             f = tmp;
@@ -88,9 +93,9 @@ public class Pole {
     private Figurek cur = null, next = null;
     private boolean genflag = false;
 
-    private final int Free = 0;
-    private final int Heap = 1;
-    private final int Current = 2;
+    public static final int Free = 0;
+    public static final int Heap = 1;
+    public static final int Current = 2;
 
     private int max_height;
     private int stub;
@@ -302,9 +307,9 @@ public class Pole {
                                break;
                 case MoveThr:  while (!step()) {};
                                break;
-                case MoveCW: cur.rotate_cw(1);
+                case MoveCW: cur.rotate_cw(1, stakan);
                              break;
-                case MoveCCW: cur.rotate_cw(3);
+                case MoveCCW: cur.rotate_cw(3, stakan);
                               break;
                 default: return;
             }
