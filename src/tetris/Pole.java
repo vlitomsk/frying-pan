@@ -77,7 +77,7 @@ public class Pole {
     private final int fif[][] = {{0, 1, 0},
                                  {1, 1, 1}};
 
-    private final int filine[][] = {{1}, {1}, {1}, {1}};
+    private final int filine[][] = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}};
 
     private final int Width = 10;
     private final int Height = 20;
@@ -227,45 +227,6 @@ public class Pole {
         return false;
     }
 
-    // повернуть по часовой стрелке
-    public void rotate_cw() {
-        cur.rotate_cw(1);
-        reproect_current();
-    }
-
-    // повернуть против часовой стрелки
-    public void rotate_ccw() {
-        cur.rotate_cw(3);
-        reproect_current();
-    }
-
-    // сдвинуть влево
-    public void move_left() {
-        if (!genflag) {
-            cur.x--;
-            reproect_current();
-        }
-    }
-
-    // сдвинуть вправо
-    public void move_right() {
-        if (!genflag) {
-            cur.x++;
-            reproect_current();
-        }
-    }
-
-    // сдвинуть вниз
-    public void move_down() {
-        cur.y++;
-        reproect_current();
-    }
-
-    // сбросить фигурку
-    public void move_thr() {
-        while (!step()) {}
-    }
-
     // пришел ли конец игре
     public boolean end_of_game() {
         upd_maxheight();
@@ -273,6 +234,38 @@ public class Pole {
             return true;
 
         return false;
+    }
+
+    public static final int MoveRight = 0;
+    public static final int MoveLeft = 1;
+    public static final int MoveDown = 2;
+    public static final int MoveThr = 3;
+    public static final int MoveCW = 4;
+    public static final int MoveCCW = 5;
+
+    public void move(int movement) {
+        if (!genflag) {
+            switch (movement) {
+                case MoveRight: if (cur.x + cur.getW() + 1 <= Width)
+                                    cur.x++;
+                                break;
+                case MoveLeft: if (cur.x > 0)
+                                   cur.x--;
+                               break;
+                case MoveDown: if (cur.y + cur.getH() + 1 <= Height)
+                                   cur.y++;
+                               break;
+                case MoveThr:  while (!step()) {};
+                               break;
+                case MoveCW: cur.rotate_cw(1);
+                             break;
+                case MoveCCW: cur.rotate_cw(3);
+                              break;
+                default: return;
+            }
+
+            reproect_current();
+        }
     }
 
     // получить стакан в виде массива
