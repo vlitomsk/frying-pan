@@ -18,15 +18,18 @@ public class Main {
         Pole p = new Pole();
         boolean sw = false;
         p.step();
+        p.move(Pole.MoveCCW);
         while (!p.end_of_game()) {
-            if (sw)
-                p.move_left();
+            /*if (sw)
+                p.move(Pole.MoveLeft);
             else
-                p.move_right();
-            sw = !sw;
+                p.move(Pole.MoveRight);
+            sw = !sw;*/
+            p.move(Pole.MoveDown);
+            //p.move(Pole.MoveLeft);
             p.step();
             print_stakan(p.ret_stakan());            
-            Thread.sleep(1000);
+            Thread.sleep(500);
         }
     }
 }
