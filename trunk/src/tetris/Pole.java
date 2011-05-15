@@ -77,7 +77,7 @@ public class Pole {
     private final int fif[][] = {{0, 1, 0},
                                  {1, 1, 1}};
 
-    private final int filine[][] = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}};
+    private final int filine[][] = {{1}, {1}, {1}, {1}};
 
     private final int Width = 10;
     private final int Height = 20;
