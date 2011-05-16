@@ -171,18 +171,28 @@ public class Pole {
 
     // схлопнуть линию n от низа стакана. n>=0
     private void squash_line(int n) {
+
         for (int i = 0; i < Width; ++i) 
             for (int j = Height - n - 1; j > 0; --j)  // МОЖЕТ БЫТЬ J>=0 ИЛИ J>1 !!!
                 stakan[i][j] = stakan[i][j - 1];
     }
 
+    private int lastscore = 0;
     // зачистить полные линии
-    private void cleanup_lines() {
+    private int cleanup_lines() {
+        int res = 0;
         for (int i = 0; i < Height; ) 
             if (check_line(i)) {
                squash_line(i);
+               res++;
             } else
                 ++i;
+        lastscore = res;
+        return res;
+    }
+
+    public int get_lastscore() {
+        return lastscore;
     }
 
     // проверить, настал ли конец текущей фигурке. если да, то в кучу ее.
