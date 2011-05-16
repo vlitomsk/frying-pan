@@ -27,17 +27,16 @@ class Figurek {
     }   
 
     public void rotate_cw(int count, int[][] stakan) {
-        if (x + getH() > stakan.length) {System.err.println("oilala");return;}
-        if (y + getW() > stakan[0].length) {return;}
+        if (x + getH() > stakan.length) return;
+        if (y + getW() > stakan[0].length) return;
         for (int fish = 0; fish < count; ++fish) {
             int[][] tmp = new int[f[0].length][f.length];
             for (int i = 0; i < tmp.length; i++) {
                 int a = tmp[i].length - 1;
                 for (int j = 0; j < tmp[i].length; j++) {
                     tmp[i][j] = f[a--][i];
-                    if (stakan[x + i][y + j] == Pole.Heap) {
+                    if (stakan[x + i][y + j] == Pole.Heap) 
                         return;
-                    }
                 }
             }
             f = tmp;
@@ -84,7 +83,7 @@ public class Pole {
 
     private final int filine[][] = {{1}, {1}, {1}, {1}};
 
-    private final int Width = 10;
+    private final int Width = 14;
     private final int Height = 24;
     private final int UpHeight = 4;
     private int stakan[][] = new int[Width][Height];
@@ -320,7 +319,6 @@ public class Pole {
 
     // получить стакан в виде массива
     public int[][] ret_stakan() {
-
         return stakan;
     }
 }
