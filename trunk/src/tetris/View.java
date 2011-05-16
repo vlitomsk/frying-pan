@@ -27,13 +27,10 @@ class TetrisView extends JApplet {
 
     public void set_st(int[][] stakan) {
         if (st != null) {
-            System.out.println("oilala");
             for (int i = 0; i < st.length; ++i) {
                 for (int j = 0; j < st[0].length; ++j) {
                     if ((st[i][j] != stakan[i][j])) {
                         diff.push(new Point(i, j));
-                        System.out.println("i = " + i);
-                        System.out.println("j = " + j);
                     }
                 }
             }
@@ -142,5 +139,7 @@ public class View {
             // print_stakan(p.ret_stakan());
             Thread.sleep(500);
         }
+
+        JOptionPane.showMessageDialog(frm, "Thanks for the fish, but game is over.");
     }
 }

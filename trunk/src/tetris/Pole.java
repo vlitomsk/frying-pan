@@ -161,7 +161,7 @@ public class Pole {
     private boolean check_line(int n) {
         boolean full = true;
         for (int i = 0; i < Width; ++i) 
-            if (stakan[i][Height - n - 1] == Free) {
+            if ((stakan[i][Height - n - 1] == Free) || (stakan[i][Height - n - 1] == Current)) {
                 full = false;
                 break;
             }
@@ -173,15 +173,15 @@ public class Pole {
     private void squash_line(int n) {
         for (int i = 0; i < Width; ++i) 
             for (int j = Height - n - 1; j > 0; --j)  // МОЖЕТ БЫТЬ J>=0 ИЛИ J>1 !!!
-                stakan[i][j] = stakan[i][j + 1];       
+                stakan[i][j] = stakan[i][j - 1];
     }
 
     // зачистить полные линии
     private void cleanup_lines() {
         for (int i = 0; i < Height; ) 
-            if (check_line(i)) 
+            if (check_line(i)) {
                squash_line(i);
-            else
+            } else
                 ++i;
     }
 
