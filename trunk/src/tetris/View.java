@@ -50,11 +50,24 @@ class TetrisView extends JApplet {
         }
     }
 
+    private int score = -1;
+    private boolean score_diff = true;
+    void set_score(int s) {
+        if (s != score)
+            score_diff = true;
+        score = s;        
+    }
+
     public void paint(Graphics g) {
         while (!diff.empty()) {
             Point p = diff.pop();
             if (st[p.x][p.y] != 0) {
+                if (st[p.x][p.y] == 1)
+                    g.setColor(new Color(0x66, 0xc4, 0x66));
+                if (st[p.x][p.y] == 2)
+                    g.setColor(new Color(0x99, 0x21, 0xde));
                 g.fillRect(p.x * 20, (p.y - 4) * 20, 20, 20);
+                g.setColor(Color.black);
             } else {
                 g.setColor(Color.white);
                 g.fillRect(p.x * 20 + 1, (p.y - 4) * 20 + 1, 19, 19);
@@ -62,12 +75,20 @@ class TetrisView extends JApplet {
             }
         }
 
-        for (int i = 0; i <= 14; ++i) {
+        if (score_diff) {
+            g.setFont(new Font("Arial", Font.PLAIN, 10));
+            g.drawString("Score: ", 290, 30);
+            g.setColor(Color.yellow);
+            g.fillRect(290, 35, this.getHeight() - 290, 20);
+            g.setColor(Color.black);
+            g.drawString(String.valueOf(score), 290, 50);
+            score_diff = false;
+        }
+
+        for (int i = 0; i <= 14; ++i)
             g.drawLine(i * 20, 0, i * 20, 20 * 20);
-        }
-        for (int i = 0; i <= 20; ++i) {
+        for (int i = 0; i <= 20; ++i)
             g.drawLine(0, i * 20, 14 * 20, i * 20);
-        }
 
     }
 }
@@ -132,14 +153,27 @@ public class View {
 
         frm.setVisible(true);
 
+        int score = 0;
         while (!p.end_of_game()) {
             p.step();
+            int ls = p.get_lastscore();
+            switch (ls) {
+                case 1: score += 100;
+                    break;
+                case 2: score += 300;
+                    break;
+                case 3: score += 700;
+                    break;
+                case 4: score += 1500;
+                    break;
+            }
             tv.set_st(p.ret_stakan());
+            tv.set_score(score);
             tv.repaint();
             // print_stakan(p.ret_stakan());
             Thread.sleep(500);
         }
 
-        JOptionPane.showMessageDialog(frm, "Thanks for the fish, but game is over.");
+        JOptionPane.showMessageDialog(frm, "Thanks for the fish, but game is over.\nYour score is: " + String.valueOf(score) + " point(s)!");
     }
 }
