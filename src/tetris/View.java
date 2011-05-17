@@ -1,43 +1,40 @@
 package tetris;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
-
-class Grid extends JComponent {
-
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setColor(Color.yellow);
-        g.fillRect(0, 0, 100, 100);
-    }
-}
 
 class TetrisView extends JApplet {
 
     private int[][] st = null;
-    private Stack<Point> diff;
+    //private Stack<Point> diff;
+    private int[][] diff;
+    private int dlen = 0;
 
     public TetrisView(int[][] stakan) {
-        diff = new Stack<Point>();
+        //diff = new Stack<Point>();
+        diff = new int[14*24][2];
         set_st(stakan);
     }
 
     public void set_st(int[][] stakan) {
         if (st != null) {
+            dlen = 0;
             for (int i = 0; i < st.length; ++i) {
                 for (int j = 0; j < st[0].length; ++j) {
                     if ((st[i][j] != stakan[i][j])) {
-                        diff.push(new Point(i, j));
+                        diff[dlen][0] = i;
+                        diff[dlen++][1] = j;
                     }
                 }
             }
         } else {
+            dlen = 0;
             for (int i = 0; i < stakan.length; ++i) {
                 for (int j = 0; j < stakan[0].length; ++j) {
-                    diff.push(new Point(i, j));
+                    diff[dlen][0] = i;
+                    diff[dlen++][1] = j;
                 }
             }
         }
@@ -58,21 +55,32 @@ class TetrisView extends JApplet {
         score = s;        
     }
 
+    private boolean next_diff = true;
+    private int level = 1;
+    void set_lev(int l) {
+        if (level != l)
+            next_diff = true;
+        level = l;
+    }
+
+    private int ft = 0;
+
     public void paint(Graphics g) {
-        while (!diff.empty()) {
-            Point p = diff.pop();
-            if (st[p.x][p.y] != 0) {
-                if (st[p.x][p.y] == 1)
+        while (dlen != 0) {
+            System.out.println("len = " + diff.length);
+            int x = diff[dlen - 1][0];
+            int y = diff[dlen - 1][1];
+            dlen--;
+            if (st[x][y] != 0) {
+                if (st[x][y] == 1)
                     g.setColor(new Color(0x66, 0xc4, 0x66));
-                if (st[p.x][p.y] == 2)
+                if (st[x][y] == 2)
                     g.setColor(new Color(0x99, 0x21, 0xde));
-                g.fillRect(p.x * 20, (p.y - 4) * 20, 20, 20);
-                g.setColor(Color.black);
-            } else {
+            } else 
                 g.setColor(Color.white);
-                g.fillRect(p.x * 20 + 1, (p.y - 4) * 20 + 1, 19, 19);
-                g.setColor(Color.black);
-            }
+
+            g.fillRect(x * 20 + 1, (y - 4) * 20 + 1, 19, 19);
+            g.setColor(Color.black);
         }
 
         if (score_diff) {
@@ -85,10 +93,13 @@ class TetrisView extends JApplet {
             score_diff = false;
         }
 
-        for (int i = 0; i <= 14; ++i)
-            g.drawLine(i * 20, 0, i * 20, 20 * 20);
-        for (int i = 0; i <= 20; ++i)
-            g.drawLine(0, i * 20, 14 * 20, i * 20);
+        if (ft < 2) {
+            for (int i = 0; i <= 14; ++i)
+                g.drawLine(i * 20, 0, i * 20, 20 * 20);
+            for (int i = 0; i <= 20; ++i)
+                g.drawLine(0, i * 20, 14 * 20, i * 20);
+            ft++;
+        }
 
     }
 }
@@ -124,21 +135,16 @@ public class View {
             }
 
             public void keyPressed(KeyEvent ke) {
-                if (ke.getKeyCode() == ke.VK_LEFT) {
+                if (ke.getKeyCode() == ke.VK_LEFT) 
                     p.move(Pole.MoveLeft);
-                }
-                if (ke.getKeyCode() == ke.VK_RIGHT) {
+                if (ke.getKeyCode() == ke.VK_RIGHT) 
                     p.move(Pole.MoveRight);
-                }
-                if (ke.getKeyCode() == ke.VK_DOWN) {
+                if (ke.getKeyCode() == ke.VK_DOWN) 
                     p.move(Pole.MoveDown);
-                }
-                if (ke.getKeyCode() == ke.VK_UP) {
+                if (ke.getKeyCode() == ke.VK_UP) 
                     p.move(Pole.MoveCW);
-                }
-                if (ke.getKeyCode() == ke.VK_SPACE) {
+                if (ke.getKeyCode() == ke.VK_SPACE) 
                     p.move(Pole.MoveThr);
-                }
 
                 p.end_of_game();
                 tv.set_st(p.ret_stakan());
@@ -154,9 +160,11 @@ public class View {
         frm.setVisible(true);
 
         int score = 0;
+        int lev = 1;
         while (!p.end_of_game()) {
             p.step();
             int ls = p.get_lastscore();
+
             switch (ls) {
                 case 1: score += 100;
                     break;
@@ -167,13 +175,24 @@ public class View {
                 case 4: score += 1500;
                     break;
             }
+
+            lev = score / 500 + 1;
+
             tv.set_st(p.ret_stakan());
             tv.set_score(score);
             tv.repaint();
             // print_stakan(p.ret_stakan());
-            Thread.sleep(500);
+
+            int stime = 500 - 30 * (lev - 1);
+            if (stime < 0)
+                break;
+
+            Thread.sleep(500 - 30*(lev - 1));
         }
 
-        JOptionPane.showMessageDialog(frm, "Thanks for the fish, but game is over.\nYour score is: " + String.valueOf(score) + " point(s)!");
+        if (p.end_of_game())
+            JOptionPane.showMessageDialog(frm, "Thanks for the fish, but game is over.\nYour score is: " + String.valueOf(score) + " point(s)!");
+        else
+            JOptionPane.showMessageDialog(frm, "You won!\nYour score is: " + String.valueOf(score) + " point(s)!");
     }
 }

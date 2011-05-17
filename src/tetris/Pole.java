@@ -195,6 +195,10 @@ public class Pole {
         return lastscore;
     }
 
+    public int[][] get_next() {
+        return next.getF();
+    }
+
     // проверить, настал ли конец текущей фигурке. если да, то в кучу ее.
     private boolean current_endofway() {
         for (int i = 0; i < Width; ++i)
